@@ -296,12 +296,12 @@ Outputs:
         Export:
           Name: !Sub ${EnvironmentName}-PRI2-SN
 
-  DNS:
+  LoadBalancerDNSName:
     Description: The website URL
     Value:
-      !Sub
-        - 'http://${DNSName}'
-        - {DNSName: !GetAtt 'WebAppLB.DNSName'}
+      Name: !Sub 
+        - 'http://${Domain}'
+        - Domain: !Sub ${WebAppLB.DNSName}]    
     Export:
       Name: !Sub "${EnviromentName}-SiteURL"
 
