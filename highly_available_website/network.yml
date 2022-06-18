@@ -38,6 +38,17 @@ Parameters:
         Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
         Type: String
         Default: 10.0.3.0/24
+    
+    CPUUsagePercentPolicyTargetValue:
+      Description: Average CPU utilization
+      Type: String
+      Default: 75.0
+
+    ALBRequestCompleteCountTargetValue:
+      Description: Number of requests completed per target in an Application Load Balancer target group.
+                  How many requests the application can handle per instance
+      Type: String
+      Default: 3
 
 Resources:
   # A virtual private cloud (VPC) is a virtual network dedicated to a AWS account.
@@ -229,7 +240,7 @@ Resources:
       Properties:
           RouteTableId: !Ref PrivateRouteTable2
           SubnetId: !Ref PrivateSubnet2
-
+    
 Outputs: 
   # This is also optional.
   # Bonus points for useful outputs!
@@ -295,17 +306,7 @@ Outputs:
         Value: !Ref PrivateSubnet2
         Export:
           Name: !Sub ${EnvironmentName}-PRI2-SN
-
-  LoadBalancerDNSName:
-    Description: The website URL
-    Value:
-      Name: !Sub 
-        - 'http://${Domain}'
-        - Domain: !Sub ${WebAppLB.DNSName}]    
-    Export:
-      Name: !Sub "${EnviromentName}-SiteURL"
-
-  
+    
 # Sample UserData
 # When creating your Launch Configuration, you may need a UserData script
 # here's one that you can use for Ubuntu Linux that will:

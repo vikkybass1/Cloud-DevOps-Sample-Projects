@@ -32,7 +32,7 @@ your private subnets. The launch configuration will be used by an auto-scaling g
   Usage: services.yaml create
 
 ### Output
-Services stack outputs the final website URL.
+Services stack outputs the final website URL: http://highl-webap-1vmj72gfgn1p1-353618003.us-east-1.elb.amazonaws.com/
 
 ## Authors
 * Victor Ng [![M](https://upload.wikimedia.org/wikipedia/fr/thumb/c/c8/Twitter_Bird.svg/30px-Twitter_Bird.svg.png)](https://twitter.com/vikkybass1)

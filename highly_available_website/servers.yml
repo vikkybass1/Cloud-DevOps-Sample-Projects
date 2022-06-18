@@ -15,21 +15,9 @@ Parameters:
     EnvironmentName:
         Description: An environment name that will be prefixed to resource names
         Type: String
-    
-    CPUUsagePercentPolicyTargetValue:
-      Description: Average CPU utilization
-      Type: String
-      Default: 75.0
-
-    ALBRequestCompleteCountTargetValue:
-      Description: Number of requests completed per target in an Application Load Balancer target group.
-                  How many requests the application can handle per instance
-      Type: String
-      Default: 3
-
+        
 Resources:
-
-  # An IAM role is an IAM identity that you can create in your account that has specific permissions.
+   # An IAM role is an IAM identity that you can create in your account that has specific permissions.
   # An IAM role is similar to an IAM user, in that it is an AWS identity with permission policies
   # that determine what the identity can and cannot do in AWS. However, instead of being uniquely
   # associated with one person, a role is intended to be assumable by anyone who needs it. Also,
@@ -64,7 +52,7 @@ Resources:
       Path: "/"
       Roles:
         - !Ref UdacityS3ReadOnlyEC2
- 
+
   # Security group defines rules that reflect the role of the instance that's associated
   # with the security group. For example, an instance that's configured as a web server
   # needs security group rules that allow inbound HTTP and HTTPS access
@@ -155,12 +143,17 @@ Resources:
   WebAppLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets:
-      - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
-      - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
-      SecurityGroups:
-      - Ref: LBSecGroup
-  
+        SecurityGroups:
+        - Ref: LBSecGroup
+        Subnets:
+        - Fn::ImportValue:
+            Fn::Sub: ${EnvironmentName}-PUB1-SN
+        - Fn::ImportValue:
+            Fn::Sub: ${EnvironmentName}-PUB2-SN
+        Tags: 
+          - Key: Name 
+            Value: !Sub ${EnvironmentName}-LoadBalancer
+
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -169,7 +162,7 @@ Resources:
         TargetGroupArn:
           Ref: WebAppTargetGroup
       LoadBalancerArn:
-        Ref: WebAppLB
+        !Ref WebAppLB
       Port: '80'
       Protocol: HTTP
   
@@ -184,6 +177,7 @@ Resources:
           Values: [/]
         ListenerArn: !Ref 'Listener'
         Priority: 1
+        
   # Specifies a target group for an Application Load Balancer or Network Load Balancer.
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -200,26 +194,13 @@ Resources:
         Fn::ImportValue:
           Fn::Sub: "${EnvironmentName}-VPCID"
 
-  WebServerCPUPolicy:
-    Type: AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref WebAppGroup
-      PolicyType: TargetTrackingScaling
-      TargetTrackingConfiguration:
-        PredefinedMetricSpecification:
-          PredefinedMetricType: ASGAverageCPUUtilization
-        TargetValue: !Ref CPUUsagePercentPolicyTargetValue
 
-  WebServerRequestCountPolicy:
-    Type: AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref WebAppGroup
-      PolicyType: TargetTrackingScaling
-      TargetTrackingConfiguration:
-        PredefinedMetricSpecification:
-          PredefinedMetricType: ALBRequestCountPerTarget
-          ResourceLabel: !Join
-            - '/'
-            - - !GetAtt WebAppLB.LoadBalancerFullName
-              - !GetAtt WebAppTargetGroup.TargetGroupFullName
-        TargetValue: !Ref ALBRequestCompleteCountTargetValue
+Outputs:
+  WebAppLoadBalancerDNSName:
+      Description: DNS name or Public URL of the Load Balancer
+      Value: !Join [ "", [ 'http://', !GetAtt WebAppLB.DNSName ]]
+      Export:
+          Name: !Sub ${EnvironmentName}-LB-DNSName
+
+  
+  
