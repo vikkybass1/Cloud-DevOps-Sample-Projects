@@ -223,11 +223,3 @@ Resources:
             - - !GetAtt WebAppLB.LoadBalancerFullName
               - !GetAtt WebAppTargetGroup.TargetGroupFullName
         TargetValue: !Ref ALBRequestCompleteCountTargetValue
-
-Outputs:
-
-  WebAppLB:
-    Description: Output of the LoadBalancer
-    Value: !Ref WebAppLB
-    Export:
-      Name: !Sub ${EnvironmentName}-LoadBalancer
